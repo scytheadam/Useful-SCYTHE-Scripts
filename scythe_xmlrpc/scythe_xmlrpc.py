@@ -12,7 +12,7 @@ class SecureCookieTransport(xmlrpc.client.SafeTransport):
         xmlrpc.client.SafeTransport.__init__(
             self, context=ssl._create_unverified_context()
         )
-        self.sess_id = sess_id
+        self.sess_id = sess_id[0]
         self._connection = (None, None)
         self._use_datetime = 0
 
