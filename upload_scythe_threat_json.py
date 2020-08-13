@@ -46,7 +46,7 @@ if __name__ == '__main__':
             except KeyError as e:
                 print("KeyError on %s. Probably not a SCYTHE Threat JSON." % e)
             except TypeError as e:
-                print("TypeError on %s. Probably a login failure." % e)
+                print("TypeError on %s. Probably a login failure!" % e)
                 break
             if result is True:
                 print("Success!")
