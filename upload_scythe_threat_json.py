@@ -37,10 +37,13 @@ if __name__ == '__main__':
             ]:
         with open(args.jsondir + file_name) as json_file:
             print("\nUploading '%s'..." % file_name)
-            data = json.load(json_file)
-            result = SCYTHE_API["rpc2"].read_in_threat_from_json(
-                data['threat']
-            )
+            try:
+                data = json.load(json_file)
+                result = SCYTHE_API["rpc2"].read_in_threat_from_json(
+                    data['threat']
+                )
+            except KeyError as e:
+                print("KeyError on %s. Probably not a SCYTHE Threat JSON." % e)
             if result is True:
                 print("Success!")
             else:
