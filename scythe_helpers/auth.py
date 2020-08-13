@@ -1,3 +1,4 @@
+import argparse
 import ssl
 import xmlrpc.client
 
@@ -46,3 +47,35 @@ def login(target_url=None, username=None, password=None):
         return SCYTHE_API
     except Exception as e:
         return e
+
+
+# Helper Function to setup SCYTHE login details
+def setup_cred_args(parser=None):
+    # Create a parser object if there is none ...
+    if parser is None:
+        parser = argparse.ArgumentParser()
+    # Add the required SCYTHE arguments ...
+    parser.add_argument(
+        '--scythe-dest', required=True,
+        help='''
+            The URL/Domain/IP and Port of SCYTHE Server.
+            Destination MUST be formatted:
+            "https://<DOMAIN/IP>:<PORT>"
+            with NOTHING ELSE! (i.e. no '/RPC' etc.)
+        ''',
+    )
+    parser.add_argument(
+        '--scythe-user', required=False,
+        default=r"BUILTIN\scythe",
+        help=r'''
+            SCYTHE user to login as. Default: "BUILTIN\scythe"
+        ''',
+    )
+    parser.add_argument(
+        '--scythe-pass', required=True,
+        help='''
+            SCYTHE user password.
+        ''',
+    )
+
+    return parser

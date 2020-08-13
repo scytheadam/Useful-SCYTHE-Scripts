@@ -1,11 +1,16 @@
 import argparse
 import json
 import os
-from scythe_helpers.auth import login
+import scythe_helpers.auth as helpers
 
 
 if __name__ == '__main__':
+    print("Running...\n")
+
     parser = argparse.ArgumentParser()
+    # Optional/helper way to get SCYTHE Credentials via argparse ...
+    parser = helpers.setup_cred_args(parser)
+    # Add this example's arguments
     parser.add_argument(
         '--jsondir', required=True,
         help='''
@@ -14,21 +19,17 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-    print("Running...\n")
-
+    # Check for the target local json dir
     if not os.path.exists(args.jsondir):
         print("Path '%s' not found!" % args.jsondir)
         print("\n ...Exiting.\n")
         exit()
 
-    # Login to SCYTHE & get access to XMLRPC objects
-    # NOTE: Domain MUST be formatted ...
-    # 'https://<DOMAIN/IP>:<PORT>'
-    # ... with NOTHING ELSE! (i.e. no '/RPC' etc.)
-    SCYTHE_API = login(
-        'https://CHANGE_ME_SERVER:8443',
-        r'CHANGE_ME_USERNAME',
-        'CHANGE_ME_PASSWORD'
+    # Use the optional helper for arguments ...
+    SCYTHE_API = helpers.login(
+        args.scythe_dest,
+        args.scythe_user,
+        args.scythe_pass,
     )
 
     # Loop all JSON files in target Dir
