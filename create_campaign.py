@@ -1,3 +1,4 @@
+import json
 import scythe_helpers.auth as helpers
 
 
@@ -90,6 +91,7 @@ if __name__ == '__main__':
             "modify_timestamp": "2025-08-25T16:39:54"
         }
     }
+    print("\nAttempting to create Campaign '%s' ... " % args.name)
     # Now create the campaign ...
     result = SCYTHE_API["rpc2"].start_campaign(
         campaign['threatName'],
@@ -100,22 +102,23 @@ if __name__ == '__main__':
         campaign['delivery'], campaign['emailFrom'],
         campaign['emailRecipients'], campaign['emailSubject'],
         campaign['emailBody'], campaign['drivebyBody'],
-        campaign['modules'],
-        campaign['steps'],
+        json.dumps(campaign['modules']),
+        json.dumps(campaign['steps']),
         campaign['emailAttachment'],
-        campaign['avoidance_options']
+        json.dumps(campaign['avoidance_options'])
     )
     print(result)
 
     # Using Campaign's name, get Direct Download Links ...
     result = SCYTHE_API["rpc2"].get_direct_download_links(args.name)
     # Output accordingly ...
-    print("64-bit EXE:\t%s" % result['active']['false'])
+    print("\nDirect Download Links for '%s' ... " % args.name)
+    print("\n64-bit EXE:\t%s" % result['active']['false'])
     print("64-bit DLL:\t%s" % result['passive']['false'])
     print("64-bit Reflective Loader + DLL:\t%s" % result['output']['false'])
-    print("32-bit EXE:\t%s" % result['active']['true'])
+    print("\n32-bit EXE:\t%s" % result['active']['true'])
     print("32-bit DLL:\t%s" % result['passive']['true'])
-    print("32-bit Reflective Loader + DLL:\t" % result['output']['true'])
+    print("32-bit Reflective Loader + DLL:\t%s" % result['output']['true'])
 
     print("\n ...Exiting.\n")
     exit()
