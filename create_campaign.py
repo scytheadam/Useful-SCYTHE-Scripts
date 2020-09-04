@@ -56,7 +56,7 @@ if __name__ == '__main__':
                 "conf":
                 {
                     "--cp": "%s:443" % args.target,
-                    "--secure": "true",
+                    "--secure": True,
                     "--multipart": 10240
                 }
             },
@@ -64,8 +64,7 @@ if __name__ == '__main__':
                 {
                     "type": "message",
                     "module": "loader",
-                    "request":
-                    "--load run"
+                    "request": "--load run"
                 },
             "2":
             {
@@ -95,7 +94,7 @@ if __name__ == '__main__':
                 "conf":
                     {
                         "--cp": "%s:443" % args.target,
-                        "--secure": "true",
+                        "--secure": True,
                         "--multipart": 10240
                     },
                 "name": "https"
