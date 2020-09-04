@@ -80,6 +80,9 @@ if __name__ == '__main__':
                 ]
             }
         }
+        # Lastly, need to format to JSON
+        campaign_steps = json.dumps(campaign_steps)
+    # ... end Else
 
     # Setup a object campaign object ...
     campaign = {
@@ -129,7 +132,7 @@ if __name__ == '__main__':
         campaign['emailRecipients'], campaign['emailSubject'],
         campaign['emailBody'], campaign['drivebyBody'],
         json.dumps(campaign['modules']),
-        json.dumps(campaign['steps']),
+        campaign['steps'],
         campaign['emailAttachment'],
         json.dumps(campaign['avoidance_options'])
     )
