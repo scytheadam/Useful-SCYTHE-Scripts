@@ -15,6 +15,10 @@ if __name__ == '__main__':
         '--name', required=True,
         help="New Campaign's name.",
     )
+    parser.add_argument(
+        '--threat', required=False,
+        help="Option to build Campaign from a pre-exisiting Threat.",
+    )
     args = parser.parse_args()
 
     # Use the optional helper for arguments ...
@@ -24,9 +28,65 @@ if __name__ == '__main__':
         args.scythe_pass,
     )
 
+    # Pre-define some empty variables for either Threat or Automation
+    threat_name = ""
+    campaign_steps = ""
+    # If based on a Threat, check to make sure it exists!
+    if args.threat:
+        print("Looking for (Windows) Threat: '%s'" % args.threat)
+        # Use a shortcut API call to confirm Threat exists & get OS
+        result = SCYTHE_API["rpc2"].get_threat_operating_system(args.threat)
+        # For this example, if it's not a Windows Threat, bail ...
+        if result == "":
+            print("Error: Threat not found.\n ...Exiting.\n")
+            exit()
+        elif result != "windows":
+            print("Error: Threat not Windows ('%s').\n ...Exiting.\n" % result)
+            exit()
+        # If all okay, set the Threat Name
+        threat_name = args.threat
+        print("Found!")
+    else:
+        # If no threat, let's add some Automation
+        campaign_steps = {
+            "0":
+            {
+                "type": "initialization",
+                "module": "https",
+                "conf":
+                {
+                    "--cp": "%s:443" % args.target,
+                    "--secure": True,
+                    "--multipart": 10240
+                }
+            },
+            "1":
+                {
+                    "type": "message",
+                    "module": "loader",
+                    "request": "--load run"
+                },
+            "2":
+            {
+                "type": "message",
+                "module": "run",
+                "request": "whoami",
+                "rtags":
+                [
+                    "scythe",
+                    "att&ck",
+                    "att&ck-tactic:TA0007",
+                    "att&ck-technique:T1033"
+                ]
+            }
+        }
+        # Lastly, need to format to JSON
+        campaign_steps = json.dumps(campaign_steps)
+    # ... end Else
+
     # Setup a object campaign object ...
     campaign = {
-        'threatName': "",
+        'threatName': threat_name,
         'campaignName': args.name,
         'operatingSystem': "windows",
         'campaignBoundary': "", 'startDate': "", 'endDate': "",
@@ -37,7 +97,7 @@ if __name__ == '__main__':
                 "conf":
                     {
                         "--cp": "%s:443" % args.target,
-                        "--secure": "true",
+                        "--secure": True,
                         "--multipart": 10240
                     },
                 "name": "https"
@@ -51,39 +111,7 @@ if __name__ == '__main__':
                 "name": "loader"
             }
         ],
-        'steps': {
-            "0":
-            {
-                "type": "initialization",
-                "module": "https",
-                "conf":
-                {
-                    "--cp": "%s:443" % args.target,
-                    "--secure": "true",
-                    "--multipart": 10240
-                }
-            },
-            "1":
-                {
-                    "type": "message",
-                    "module": "loader",
-                    "request":
-                    "--load run"
-                },
-            "2":
-            {
-                "type": "message",
-                "module": "run",
-                "request": "whoami",
-                "rtags":
-                [
-                    "scythe",
-                    "att&amp;ck",
-                    "att&amp;ck-tactic:TA0007",
-                    "att&amp;ck-technique:T1033"
-                ]
-            }
-        },
+        'steps': campaign_steps,
         'emailAttachment': "",
         'avoidance_options':
         {
@@ -91,6 +119,7 @@ if __name__ == '__main__':
             "modify_timestamp": "2025-08-25T16:39:54"
         }
     }
+
     print("\nAttempting to create Campaign '%s' ... " % args.name)
     # Now create the campaign ...
     result = SCYTHE_API["rpc2"].start_campaign(
@@ -103,7 +132,7 @@ if __name__ == '__main__':
         campaign['emailRecipients'], campaign['emailSubject'],
         campaign['emailBody'], campaign['drivebyBody'],
         json.dumps(campaign['modules']),
-        json.dumps(campaign['steps']),
+        campaign['steps'],
         campaign['emailAttachment'],
         json.dumps(campaign['avoidance_options'])
     )
