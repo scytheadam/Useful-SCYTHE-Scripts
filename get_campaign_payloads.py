@@ -49,34 +49,21 @@ if __name__ == '__main__':
         args.scythe_pass,
     )
 
+    # Get all the payloads and their details
+    result = SCYTHE_API["rpc2"].get_direct_download_links(args.campaign)
+
     # Setup Cookies
     cookies = dict(sessionid=SCYTHE_API['sessionid'])
 
     # Setup Download URL for 64 bit EXE
-    download_url = (
-        "%s/download_client?"
-        "campaignName=%s"
-        "&architectureType=x64"
-        ) % (
-        args.scythe_dest,
-        args.campaign
-    )
+    download_url = result['active']['false']
     print(download_url)
     filename = "%s_scythe_client64.exe" % args.campaign
     # Download file...
     download_payload(download_url, cookies, filename)\
 
     # Setup Download URL for 64 bit DLL
-    download_url = (
-        "%s/download_client?"
-        "campaignName=%s"
-        "&architectureType=x64&dll=1"
-        "&entryPoint=%s"
-        ) % (
-        args.scythe_dest,
-        args.campaign,
-        args.entrypoint
-    )
+    download_url = result['passive']['false']
     print(download_url)
     filename = "%s_scythe_client64.dll" % args.campaign
     # Download file...
