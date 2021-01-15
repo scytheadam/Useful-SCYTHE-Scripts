@@ -134,3 +134,4 @@ dmypy.json
 *.bak
 *.exe
 *.dll
+*.scythe.bin
